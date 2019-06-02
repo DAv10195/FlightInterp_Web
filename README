@@ -1,0 +1,21 @@
+created by David Abramov and Nikita Kogan.
+
+We wanted to give a bit of information about the Web version of our project...
+
+NOTE: make make sure you have passed valid arguments to FlightGear.
+
+enter this line in the Settings->Additional Settings box:
+--generic=socket,out,10,nnn.nnn.nnn.nnn,5400,tcp,generic_small
+
+the Web part of out project uses ASP.NET MVC by Microsoft to achieve a web MVC structure, which allows us to serve 4 RestFul API URLs:
+
+/display/ip/port - connects to FlightGear on the given ip and port and displays the planes current position on a map.
+
+/display/ip/port/sec - connects to FlightGear on the given ip and port and displays the planes position on the map every 'sec' seconds.
+
+/save/ip/port/perSec/sec/filename - saves to a file named 'filename' the locations of the plane during the next 'sec' seconds, taking the
+planes position from FlightGear 'perSec' times per each second.
+
+/display/filename/perSec - loads an animation showing the route saved using the above URL 'perSec' times per each second.
+
+Enjoy FlightInterp_Web!
