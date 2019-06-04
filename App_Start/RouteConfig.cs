@@ -19,7 +19,7 @@ namespace WebApplication1
             routes.MapRoute("displayForSec", "display/{ip}/{port}/{sec}",
             defaults: new { controller = "WebSimulator", action = "displayPosPerSec" });
 
-            routes.MapRoute("displayFromFile", "display/{ip}/{port}/{perSecond}/{NumSeconds}/{filename}",
+            routes.MapRoute("saveToFile", "save/{ip}/{port}/{perSecond}/{NumSeconds}/{filename}",
             defaults: new { controller = "WebSimulator", action = "saveFlightData" });
 
             routes.MapRoute(
