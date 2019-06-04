@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "FindLocationView";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <style>
+        body {
+            background-image: url("../../../../../Content/export-map-share.png");
+            background-size: cover;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        canvas.width = document.documentElement.clientWidth;
+        canvas.height = document.documentElement.clientHeight;
+        var ctx = canvas.getContext("2d");
+        ctx.canvas.width = canvas.width;
+        ctx.canvas.height = canvas.height;
+        var Lon = @ViewBag.Lon;
+        var Lat = @ViewBag.Lat;
+        var normalLon = (Lon + 180) * (canvas.width / 360);
+        var normalLat = (Lat + 90) * (canvas.height / 180);
+        ctx.arc(normalLon, normalLat, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.stroke();
+    </script>
+</body>
+</html>

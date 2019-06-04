@@ -1,0 +1,105 @@
+﻿
+@{
+    ViewBag.Title = "SaveToFileView";
+}
+
+<html>
+<head>
+    <style>
+        body {
+            background-image: url("../../../../../Content/export-map-share.png");
+            background-size: cover;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" style="width: 100%; height: 100%"></canvas>
+    <script>
+    //extract canvas and set the width and height.
+    var canvas = document.getElementById("myCanvas");
+    canvas.width = document.documentElement.clientWidth;
+    canvas.height = document.documentElement.clientHeight;
+    //2nd context.
+    var ctx = canvas.getContext("2d");
+    ctx.canvas.width = canvas.width;
+    ctx.canvas.height = canvas.height;
+    //take the refresh rate, the first values of Lon and Lat and the number of iterations.
+    var intervalTime = @ViewBag.refreshRate;
+    var time = @ViewBag.timeout;
+    //normalize the values from FlightGear to appear in our map.
+    var FirstLon = @ViewBag.beginLon;
+    var NormLon = (FirstLon + 180) * (canvas.width / 360);
+    var FirstLat = @ViewBag.beginLat;
+    var NormLat = (FirstLat + 90) * (canvas.height / 180);
+    //draw the circle in our coordinates.
+    ctx.beginPath();
+    ctx.arc(NormLon, NormLat, 5, 0, 2 * Math.PI);
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "red";
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "red";
+    ctx.moveTo(NormLon, NormLat);
+    currLon = FirstLon;
+    currLat = FirstLat;
+    var stopped = false;
+    //use http post to connect the server and refresh the location of the plane without refreshing the whole page.
+    saveDetails = (function () {
+        $.post("@Url.Action("getPosition")").done(function (xml) {
+            //take the xml given by the controller and parse it.
+            var xmlDoc = $.parseXML(xml);
+            var error = false;
+            $xml = $(xmlDoc);
+            Lon = $xml.find("Lon").text();
+            Lat = $xml.find("Lat").text();
+            Lon = parseFloat(Lon.valueOf());
+            Lat = parseFloat(Lat.valueOf());
+            if (Lon == currLon && Lat == currLat)
+            {
+                return;
+            }
+            if (Lon == 200 || Lat == 200)
+            { //200 is error value.
+                alert("Error getting values from FlightGear!");
+                clearInterval(interval);
+                stopped = true;
+                error = true;
+            }
+            currLon = Lon;
+            currLat = Lat;
+            if (error == false)
+            {
+                var NormLon = (Lon + 180) * (canvas.width / 360);
+                var NormLat = (Lat + 90) * (canvas.height / 180);
+                ctx.lineTo(NormLon, NormLat);
+                ctx.stroke();
+                ctx.moveTo(NormLon, NormLat);
+            }
+        });
+    });
+    interval = setInterval(saveDetails, intervalTime);
+    setTimeout(function () {
+        if (stopped == false)
+        {
+            clearInterval(interval);
+            $.post("@Url.Action("writeSavedDetails")").done(function (xml) {
+                var xmlDoc = $.parseXML(xml);
+                $xml = $(xmlDoc);
+                Lon = $xml.find("Lon").text();
+                Lat = $xml.find("Lat").text();
+                Lon = parseFloat(Lon.valueOf());
+                Lat = parseFloat(Lat.valueOf());
+                if (Lon == 200 || Lat == 200) { //200 is error value.
+                    alert("Error saving flight details from FlightGear!");
+                }
+                else
+                {
+                    alert("Done saving flight details from FlightGear!");
+                }
+            });
+        }
+    }, time);
+    </script>
+</body>
+</html>
